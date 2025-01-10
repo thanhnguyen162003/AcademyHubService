@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ServiceStack.Interfaces" Version="8.5.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AcademyHubService.Common\AcademyHubService.Common.csproj"/>
+        <ProjectReference Include="..\AcademyHubService.ReadModel\AcademyHubService.ReadModel.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="System"/>
+        <Using Include="System.Linq"/>
+        <Using Include="System.Threading.Tasks"/>
+        <Using Include="Starnet.Common"/>
+        <Using Include="ServiceStack"/>
+        <Using Include="AcademyHubService.ReadModel"/>
+    </ItemGroup>
+
+</Project>

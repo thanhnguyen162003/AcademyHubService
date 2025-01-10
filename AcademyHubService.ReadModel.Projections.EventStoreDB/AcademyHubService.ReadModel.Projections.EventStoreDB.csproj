@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DStack.Projections.EventStoreDB" Version="9.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AcademyHubService.PL\AcademyHubService.PL.csproj"/>
+        <ProjectReference Include="..\AcademyHubService.ReadModel.Projections\AcademyHubService.ReadModel.Projections.csproj"/>
+    </ItemGroup>
+
+</Project>

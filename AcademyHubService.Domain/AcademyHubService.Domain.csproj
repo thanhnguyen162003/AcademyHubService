@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DStack.Aggregates" Version="9.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AcademyHubService.PL\AcademyHubService.PL.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="System"/>
+        <Using Include="System.Threading.Tasks"/>
+        <Using Include="System.Collections.Generic"/>
+        <Using Include="Starnet.Common"/>
+        <Using Include="AcademyHubService.Common"/>
+        <Using Include="AcademyHubService.PL.Commands"/>
+        <Using Include="AcademyHubService.PL.Events"/>
+        <Using Include="DStack.Aggregates"/>
+    </ItemGroup>
+
+</Project>

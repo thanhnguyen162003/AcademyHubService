@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"/>
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0"/>
+        <PackageReference Include="NServiceBus" Version="9.2.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AcademyHubService.Api.ServiceModel\AcademyHubService.Api.ServiceModel.csproj"/>
+        <ProjectReference Include="..\AcademyHubService.PL\AcademyHubService.PL.csproj"/>
+        <ProjectReference Include="..\AcademyHubService.ReadModel\AcademyHubService.ReadModel.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="System"/>
+        <Using Include="System.Linq"/>
+        <Using Include="System.Threading.Tasks"/>
+        <Using Include="System.Collections.Generic"/>
+        <Using Include="Starnet.Common"/>
+        <Using Include="AcademyHubService.Common"/>
+        <Using Include="AcademyHubService.ReadModel"/>
+        <Using Include="AutoMapper"/>
+        <Using Include="Microsoft.AspNetCore.Mvc"/>
+    </ItemGroup>
+
+</Project>
