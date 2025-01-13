@@ -19,7 +19,6 @@ namespace Infrastructure.Configurations
                 User = redisSetting.User,
                 Password = redisSetting.Password,
                 AbortOnConnectFail = false
-
             };
 
             var multiplexer = ConnectionMultiplexer.Connect(options);

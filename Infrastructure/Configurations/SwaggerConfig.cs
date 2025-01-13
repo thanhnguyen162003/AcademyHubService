@@ -11,12 +11,12 @@ namespace Infrastructure.Configurations
             {
                 swagger.SwaggerDoc("v1", new()
                 {
-                    Title = "Game Cooket",
+                    Title = "Academy Hub Service",
                     Version = "v1",
-                    Description = "Game Cooket API",
+                    Description = "Academy Hub API",
                     Contact = new OpenApiContact
                     {
-                        Name = "Game Cooket",
+                        Name = "HighSchool",
                         Email = "support@highschool.com"
                     },
                     License = new OpenApiLicense
