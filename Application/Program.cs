@@ -10,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddApplication();
 builder.AddInfrastructure();
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

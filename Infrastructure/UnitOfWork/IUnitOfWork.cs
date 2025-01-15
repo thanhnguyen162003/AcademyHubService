@@ -1,6 +1,4 @@
-﻿using Infrastructure.Repositories;
-
-namespace Infrastructure.Repositories
+﻿namespace Infrastructure.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {

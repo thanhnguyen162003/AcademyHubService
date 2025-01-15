@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Domain.CustomEntities;
 
 namespace Domain.Entity;
 
-public partial class Zone
+public partial class Zone : BaseAuditableEntity
 {
     public Guid Id { get; set; }
 
@@ -15,9 +14,13 @@ public partial class Zone
 
     public string? BannerUrl { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
 
-    public DateTime? UpdatedAt { get; set; }
+    public ICollection<Guid> DocumentIds { get; set; } = new List<Guid>();
+
+    public ICollection<Guid> FlashcardIds { get; set; } = new List<Guid>();
+
+    public ICollection<Guid> FolderIds { get; set; } = new List<Guid>();
 
     public virtual ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
 

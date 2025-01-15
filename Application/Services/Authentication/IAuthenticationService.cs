@@ -1,6 +1,4 @@
-﻿using Domain.Models.Common;
-
-namespace Application.Services.Authentication
+﻿namespace Application.Services.Authentication
 {
     public interface IAuthenticationService
     {

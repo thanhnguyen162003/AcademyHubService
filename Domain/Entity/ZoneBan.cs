@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Domain.Entity;
+﻿namespace Domain.Entity;
 
 public partial class ZoneBan
 {
@@ -9,7 +6,7 @@ public partial class ZoneBan
 
     public Guid? ZoneId { get; set; }
 
-    public string? UserId { get; set; }
+    public Guid? UserId { get; set; }
 
     public string Email { get; set; } = null!;
 

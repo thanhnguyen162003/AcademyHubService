@@ -27,5 +27,7 @@
 
         public const string ServerError = "Server Error!";
         public const string InvalidStatus = "Invalid Status!";
+
+        public const string Forbidden = "Forbidden! You do not permission to do this action.";
     }
 }

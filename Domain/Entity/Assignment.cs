@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Domain.CustomEntities;
 
 namespace Domain.Entity;
 
-public partial class Assignment
+public partial class Assignment : BaseAuditableEntity
 {
     public Guid Id { get; set; }
 
@@ -18,10 +17,6 @@ public partial class Assignment
     public int? TotalQuestion { get; set; }
 
     public int? TotalTime { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
 
     public DateTime? AvailableAt { get; set; }
 

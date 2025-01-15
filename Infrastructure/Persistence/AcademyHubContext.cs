@@ -151,17 +151,13 @@ public partial class AcademyHubContext : DbContext
                 .HasColumnName("id");
             entity.Property(e => e.AssignmentId).HasColumnName("assignmentId");
             entity.Property(e => e.MemberId).HasColumnName("memberId");
-            entity.Property(e => e.SavedAt)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("savedAt");
             entity.Property(e => e.Score).HasColumnName("score");
-            entity.Property(e => e.StartedAt)
+            entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("startedAt");
-            entity.Property(e => e.SubmittedAt)
+                .HasColumnName("createdAt");
+            entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("submittedAt");
-
+                .HasColumnName("updatedAt");
             entity.HasOne(d => d.Assignment).WithMany(p => p.Submissions)
                 .HasForeignKey(d => d.AssignmentId)
                 .HasConstraintName("Submission_assignmentId_fkey");
@@ -180,6 +176,7 @@ public partial class AcademyHubContext : DbContext
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("id");
+            entity.Property(e => e.CreatedBy).HasColumnName("createdBy");
             entity.Property(e => e.BannerUrl)
                 .HasColumnType("character varying")
                 .HasColumnName("bannerUrl");
@@ -198,6 +195,9 @@ public partial class AcademyHubContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updatedAt");
+            entity.Property(e => e.DocumentIds).HasColumnName("documentIds");
+            entity.Property(e => e.FlashcardIds).HasColumnName("flashcardIds");
+            entity.Property(e => e.FolderIds).HasColumnName("folderIds");
         });
 
         modelBuilder.Entity<ZoneBan>(entity =>
@@ -238,6 +238,14 @@ public partial class AcademyHubContext : DbContext
                 .HasColumnName("type");
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.ZoneId).HasColumnName("zoneId");
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("createdAt");
+
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedAt");
 
             entity.HasOne(d => d.Group).WithMany(p => p.ZoneMemberships)
                 .HasForeignKey(d => d.GroupId)

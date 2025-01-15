@@ -1,7 +1,7 @@
 ﻿using Application.Features.Common;
 using Application.Middlewares;
+using Application.Services.Authentication;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication;
 using System.Reflection;
 
 namespace Application

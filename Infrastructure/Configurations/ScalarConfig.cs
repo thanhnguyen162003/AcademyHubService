@@ -20,14 +20,7 @@ namespace Infrastructure.Configurations
             app.MapScalarApiReference(options =>
             {
                 options.EndpointPathPrefix = "/api/{documentName}";
-            })
-               .RequireAuthorization(options =>
-               {
-                   options.RequireAssertion(context =>
-                   {
-                       return true;
-                   });
-               });
+            });
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Domain.CustomEntities;
 
 namespace Domain.Entity;
 
-public partial class ZoneMembership
+public partial class ZoneMembership : BaseAuditableEntity
 {
     public int Id { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace Application.Common.Helper
 {
-    public class Utils
+    public static class Utils
     {
         /// <summary>
         /// Generates a random string with a length of 6 characters.
@@ -27,6 +27,20 @@
 
             // Fallback if arguments are not in expected format
             return handlerName;
+        }
+
+        public static bool IsValidUrl(this string? url)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                return false;
+            }
+            if (Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
+                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

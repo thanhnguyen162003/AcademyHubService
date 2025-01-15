@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Domain.CustomEntities;
 
 namespace Domain.Entity;
 
-public partial class Submission
+public partial class Submission : BaseAuditableEntity
 {
     public Guid Id { get; set; }
 
     public int? MemberId { get; set; }
 
     public Guid? AssignmentId { get; set; }
-
-    public DateTime? StartedAt { get; set; }
-
-    public DateTime? SavedAt { get; set; }
-
-    public DateTime? SubmittedAt { get; set; }
 
     public double? Score { get; set; }
 

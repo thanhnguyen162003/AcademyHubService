@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Domain.Entity;
+﻿namespace Domain.Entity;
 
 public partial class TestContent
 {
