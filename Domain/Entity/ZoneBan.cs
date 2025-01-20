@@ -10,6 +10,10 @@ public partial class ZoneBan
 
     public string Email { get; set; } = null!;
 
+    public string? Reason { get; set; }
+
+    public Guid? CreatedBy { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public virtual Zone? Zone { get; set; }

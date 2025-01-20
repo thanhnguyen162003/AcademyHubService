@@ -27,6 +27,22 @@ namespace Infrastructure.Repositories.GenericRepository
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<T?> GetBy(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[]? includeProperties)
+        {
+            var query = _dbSet
+                .Where(predicate)
+                .AsQueryable();
+            if (includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
         public async Task Add(T entity)
         {
             await _dbSet.AddAsync(entity);

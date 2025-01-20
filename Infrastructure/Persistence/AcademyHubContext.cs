@@ -69,6 +69,7 @@ public partial class AcademyHubContext : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updatedAt");
             entity.Property(e => e.ZoneId).HasColumnName("zoneId");
+            entity.Property(e => e.CreatedBy).HasColumnName("createdBy");
 
             entity.HasOne(d => d.Zone).WithMany(p => p.Assignments)
                 .HasForeignKey(d => d.ZoneId)
@@ -109,6 +110,7 @@ public partial class AcademyHubContext : DbContext
                 .HasColumnType("character varying")
                 .HasColumnName("type");
             entity.Property(e => e.ZoneId).HasColumnName("zoneId");
+            entity.Property(e => e.InviteBy).HasColumnName("inviteBy");
 
             entity.HasOne(d => d.Zone).WithMany(p => p.PendingZoneInvites)
                 .HasForeignKey(d => d.ZoneId)
@@ -195,6 +197,9 @@ public partial class AcademyHubContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updatedAt");
+            entity.Property(e => e.DeletedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("deletedAt");
             entity.Property(e => e.DocumentIds).HasColumnName("documentIds");
             entity.Property(e => e.FlashcardIds).HasColumnName("flashcardIds");
             entity.Property(e => e.FolderIds).HasColumnName("folderIds");
@@ -216,6 +221,7 @@ public partial class AcademyHubContext : DbContext
             entity.Property(e => e.UserId)
                 .HasColumnType("character varying")
                 .HasColumnName("userId");
+            entity.Property(e => e.CreatedBy).HasColumnName("createdBy");
 
             entity.HasOne(d => d.Zone).WithMany(p => p.ZoneBans)
                 .HasForeignKey(d => d.ZoneId)
@@ -246,6 +252,10 @@ public partial class AcademyHubContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updatedAt");
+
+            entity.Property(e => e.Email).HasColumnName("email");
+
+            entity.Property(e => e.InviteBy).HasColumnName("inviteBy");
 
             entity.HasOne(d => d.Group).WithMany(p => p.ZoneMemberships)
                 .HasForeignKey(d => d.GroupId)

@@ -23,6 +23,8 @@ namespace Application.Features.ZoneFeatures.Commands
         public string? LogoUrl { get; set; }
 
         public string? BannerUrl { get; set; }
+        
+        public Guid? TransferOwner { get; set; }
     }
 
     public class UpdateZoneCommandValidator : AbstractValidator<UpdateZoneCommand>
@@ -67,8 +69,8 @@ namespace Application.Features.ZoneFeatures.Commands
             }
 
             // Check role of user performing action
-            var userId = _authenticationService.GetUserId();
-            if(!await _unitOfWork.ZoneMembershipRepository.IsAdminZone(userId, zone.Id))
+            var userId = _authenticationService.User.UserId;
+            if(!await _unitOfWork.ZoneMembershipRepository.IsTeacherInZone(userId, zone.Id) && !zone.CreatedBy.Equals(userId))
             {
                 return new APIResponse()
                 {

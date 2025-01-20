@@ -6,6 +6,7 @@ namespace Repositories.GenericRepository
     public interface IRepository<T> where T : class
     {
         Task<T?> GetById(dynamic id);
+        Task<T?> GetBy(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[]? includeProperties);
         Task Add(T entity);
         Task Delete(dynamic id);
         Task Update(T entity);

@@ -26,6 +26,8 @@ public partial class Assignment : BaseAuditableEntity
 
     public bool? Published { get; set; }
 
+    public Guid? CreatedBy { get; set; }
+
     public virtual ICollection<TestContent> Questions { get; set; } = new List<TestContent>();
 
     public virtual ICollection<Submission> Submissions { get; set; } = new List<Submission>();

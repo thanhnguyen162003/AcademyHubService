@@ -5,6 +5,8 @@ namespace Infrastructure.Repositories
 {
     public interface IZoneMembershipRepository : ISqlRepository<ZoneMembership>
     {
-        Task<bool> IsAdminZone(Guid userId, Guid zoneId);
+        Task<bool> IsTeacherInZone(Guid userId, Guid zoneId);
+        Task<ZoneMembership?> GetMembership(Guid userId, Guid zoneId, bool includeDeleted = false);
+        Task<bool> IsMembership(string email, Guid zoneId);
     }
 }

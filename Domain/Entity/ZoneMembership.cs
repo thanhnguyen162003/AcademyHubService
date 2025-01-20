@@ -10,9 +10,13 @@ public partial class ZoneMembership : BaseAuditableEntity
 
     public Guid? GroupId { get; set; }
 
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
+
+    public Guid? InviteBy { get; set; }
 
     public string Type { get; set; } = null!;
+
+    public string? Email { get; set; }
 
     public DateTime? DeletedAt { get; set; }
 

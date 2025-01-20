@@ -1,9 +1,9 @@
-﻿namespace Application.Services.Authentication
+﻿using Application.Common.Models.Authen;
+
+namespace Application.Services.Authentication
 {
     public interface IAuthenticationService
     {
-        Guid GetUserId();
-        Guid GetSessionId();
-        bool IsAuthenticated();
+        UserAuthenModel User { get; }
     }
 }

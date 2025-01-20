@@ -16,6 +16,8 @@ public partial class Zone : BaseAuditableEntity
 
     public Guid? CreatedBy { get; set; }
 
+    public DateTime? DeletedAt { get; set; }
+
     public ICollection<Guid> DocumentIds { get; set; } = new List<Guid>();
 
     public ICollection<Guid> FlashcardIds { get; set; } = new List<Guid>();

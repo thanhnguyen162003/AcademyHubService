@@ -8,14 +8,14 @@ namespace Infrastructure
     {
         private readonly AcademyHubContext _context;
 
-        public IAssignmentRepository _assignmentRepository = null!;
-        public IGroupRepository _groupRepository = null!;
-        public IPendingZoneInviteRepository _pendingZoneInviteRepository = null!;
-        public ITestContentRepository _testContentRepository = null!;
-        public ISubmissionRepository _submissionRepository = null!;
-        public IZoneRepository _zoneRepository = null!;
-        public IZoneBanRepository _zoneBanRepository = null!;
-        public IZoneMembershipRepository _zoneMembershipRepository = null!;
+        private readonly IAssignmentRepository _assignmentRepository = null!;
+        private readonly IGroupRepository _groupRepository = null!;
+        private readonly IPendingZoneInviteRepository _pendingZoneInviteRepository = null!;
+        private readonly ITestContentRepository _testContentRepository = null!;
+        private readonly ISubmissionRepository _submissionRepository = null!;
+        private readonly IZoneRepository _zoneRepository = null!;
+        private readonly IZoneBanRepository _zoneBanRepository = null!;
+        private readonly IZoneMembershipRepository _zoneMembershipRepository = null!;
 
         public UnitOfWork(AcademyHubContext context, IConnectionMultiplexer connectionMultiplexer)
         {

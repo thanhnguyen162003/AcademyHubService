@@ -1,30 +1,26 @@
 ﻿using Application.Common.Helper;
+using Application.Common.Models.Authen;
 
 namespace Application.Services.Authentication
 {
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        public UserAuthenModel _user = null!;
 
         public AuthenticationService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public Guid GetUserId()
+        public UserAuthenModel User => _user ?? new UserAuthenModel()
         {
-            return _httpContextAccessor.HttpContext?.User.GetUserIdFromToken() ?? throw new Exception("Unauthorize!");
-        }
-
-        public Guid GetSessionId()
-        {
-            return _httpContextAccessor.HttpContext?.User.GetSessionIdFromToken() ?? throw new Exception("Unauthorize!");
-        }
-
-        public bool IsAuthenticated()
-        {
-            return _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-        }
+            Email = _httpContextAccessor.HttpContext?.User.GetEmailFromToken() ?? string.Empty,
+            UserId = _httpContextAccessor.HttpContext?.User.GetUserIdFromToken() ?? Guid.Empty,
+            Role = _httpContextAccessor.HttpContext?.User.GetRoleFromToken() ?? 0,
+            SessionId = _httpContextAccessor.HttpContext?.User.GetSessionIdFromToken() ?? Guid.Empty,
+            IsAuthenticated = _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false
+        };
 
     }
 }

@@ -8,6 +8,8 @@ public partial class PendingZoneInvite
 
     public string Email { get; set; } = null!;
 
+    public Guid? InviteBy { get; set; }
+
     public string Type { get; set; } = null!;
 
     public DateTime? CreatedAt { get; set; }

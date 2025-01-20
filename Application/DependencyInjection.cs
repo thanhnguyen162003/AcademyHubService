@@ -1,6 +1,7 @@
 ﻿using Application.Features.Common;
 using Application.Middlewares;
 using Application.Services.Authentication;
+using Application.Services.KafkaService.Producer;
 using FluentValidation;
 using System.Reflection;
 
@@ -27,6 +28,7 @@ namespace Application
 
             // Add Services
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<IProducerService, ProducerService>();
         }
     }
 }

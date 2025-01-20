@@ -4,9 +4,14 @@
     {
         public enum ZoneMembershipType
         {
-            Admin = 1,
-            Teacher = 2,
-            Student = 3
+            Teacher = 1,
+            Student = 2
+        }
+
+        public enum RelyInvite
+        {
+            Accept = 1,
+            Reject = 2
         }
 
     }
