@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <Folder Include="Features\AssignmentFeatures\Queries\" />
+    <Folder Include="Services\BackgroundServices\ServiceTask\" />
+    <Folder Include="Services\KafkaService\EventHandler\" />
   </ItemGroup>
 
   <ItemGroup>

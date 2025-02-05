@@ -1,6 +1,8 @@
 ﻿using Application.Features.Common;
 using Application.Middlewares;
 using Application.Services.Authentication;
+using Application.Services.BackgroundServices.BackgroundTask;
+using Application.Services.BackgroundServices.Workers;
 using Application.Services.KafkaService.Producer;
 using FluentValidation;
 using System.Reflection;
@@ -29,6 +31,10 @@ namespace Application
             // Add Services
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IProducerService, ProducerService>();
+
+            builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
+            builder.Services.AddHostedService<CommonWorkerService>();
         }
     }
 }

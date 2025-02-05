@@ -40,5 +40,15 @@ namespace Application.Controllers
             return StatusCode((int)result.Status, result);
         }
 
+        [HttpPost("group")]
+        [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GroupMember([FromBody] GroupMemberCommand command, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(command, cancellationToken);
+
+            return StatusCode((int)result.Status, result);
+        }
+
     }
 }

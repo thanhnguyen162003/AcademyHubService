@@ -41,17 +41,20 @@ namespace Application.Features.ZoneFeatures.Commands
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IAuthenticationService _authenticationService;
 
-        public CreateZoneCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateZoneCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IAuthenticationService authenticationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _authenticationService = authenticationService;
         }
 
         public async Task<APIResponse> Handle(CreateZoneCommand request, CancellationToken cancellationToken)
         {
             // Create zone
             var zone = _mapper.Map<Zone>(request);
+            zone.CreatedBy = _authenticationService.User.UserId;
             await _unitOfWork.ZoneRepository.Add(zone);
 
             if (await _unitOfWork.SaveChangesAsync())

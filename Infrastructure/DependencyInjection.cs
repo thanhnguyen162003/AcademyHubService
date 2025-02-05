@@ -18,6 +18,7 @@ namespace Infrastructure
             // Set up configuration
             builder.Services.Configure<DefaultSystem>(builder.Configuration.GetSection("DefaultSystem"));
             builder.Services.Configure<JWTSetting>(builder.Configuration.GetSection("JWTSetting"));
+            builder.Services.Configure<WorkerSetting>(builder.Configuration.GetSection("WorkerSetting"));
 
             // Set up server
             var setting = builder.Configuration.GetSection("DefaultSystem").Get<DefaultSystem>();
