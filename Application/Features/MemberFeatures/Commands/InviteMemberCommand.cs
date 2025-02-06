@@ -4,8 +4,10 @@ using Application.Common.Models.ProduceModels;
 using Application.Messages;
 using Application.Services.Authentication;
 using Application.Services.KafkaService.Producer;
+using Domain.Constants;
 using Domain.Constants.Services;
 using Domain.Entity;
+using Domain.Enums;
 using Domain.Models.Common;
 using FluentValidation;
 using Infrastructure.Repositories;
@@ -20,6 +22,7 @@ namespace Application.Features.MemberFeatures.Commands
         public string? Email { get; set; }
         public string? Type { get; set; }
         public Guid? ZoneId { get; set; }
+        public long? PeriodTime { get; set; } // Minutes
     }
 
     public class InviteMemberCommandValidator : AbstractValidator<InviteMemberCommand>
@@ -80,33 +83,57 @@ namespace Application.Features.MemberFeatures.Commands
                 };
             }
 
-            // Save pending invite
+            // Check if user is already invited
+            var invite = await _unitOfWork.PendingZoneInviteRepository.GetBy(e =>
+                e.ZoneId.Equals(request.ZoneId) && e.Email.Equals(request.Email)
+            );
+
             var userId = _authenticationService.User.UserId;
-            await _unitOfWork.PendingZoneInviteRepository.Add(new PendingZoneInvite()
-            {
-                Email = request.Email!,
-                Type = request.Type!,
-                CreatedAt = DateTime.Now,
-                ZoneId = request.ZoneId!,
-                InviteBy = userId
-            });
 
-            // Send mail invite
-            var result = await _producerService.ProduceObjectAsync(TopicKafkaConstaints.SendMail, new InviteMailModel()
+            if(invite != null)
             {
-                CreatedBy = (Guid)zone.CreatedBy!,
-                Email = request.Email!,
-                LogoUrl = zone.LogoUrl!,
-                Type = request.Type!,
-                ZoneId = zone.Id,
-                ZoneName = zone.Name,
-                CreatedAt = DateTime.Now,
-                InviteBy = userId
-            });
+                // update invite if exists
+                invite.Type = request.Type!;
+                invite.InviteBy = userId;
+                invite.ExpiredAt = DateTime.Now.AddMinutes((double)request.PeriodTime!);
+                invite.UpdatedAt = DateTime.Now;
+                await _unitOfWork.PendingZoneInviteRepository.Update(invite);
+            } else
+            {
+                // create pending invite if not exists
+                await _unitOfWork.PendingZoneInviteRepository.Add(new PendingZoneInvite()
+                {
+                    Email = request.Email!,
+                    Type = request.Type!,
+                    CreatedAt = DateTime.Now,
+                    ZoneId = request.ZoneId!,
+                    InviteBy = userId,
+                    ExpiredAt = DateTime.Now.AddMinutes((double)request.PeriodTime!)
+                });
+            }
 
-            if(result)
+            if (await _unitOfWork.SaveChangesAsync())
             {
-                if(await _unitOfWork.SaveChangesAsync())
+                // Send mail invite
+                var result = await _producerService.ProduceObjectWithKeyAsync(TopicKafkaConstaints.MailZoneCreated, userId.ToString(), new MailModel()
+                {
+                    MailType = MailSendType.InviteMember,
+                    MailInviteMemberModel = new MailInviteMemberModel()
+                    {
+                        CreatedBy = (Guid)zone.CreatedBy!,
+                        Email = request.Email!,
+                        LogoUrl = zone.LogoUrl!,
+                        ZoneName = zone.Name!,
+                        CreatedAt = DateTime.Now,
+                        Type = request.Type!,
+                        Description = zone.Description!,
+                        BannerUrl = zone.BannerUrl!,
+                        AcceptLink = $"{UrlConstant.ClientUrl}/api/v1/{zone.Id}/members/reply/accept",
+                        RejectLink = $"{UrlConstant.ClientUrl}/api/v1/{zone.Id}/members/reply/reject"
+                    }
+                });
+
+                if (result)
                 {
                     return new APIResponse()
                     {
@@ -114,6 +141,7 @@ namespace Application.Features.MemberFeatures.Commands
                         Message = MessageZone.InviteMemberSuccess,
                         Data = zone.Id
                     };
+
                 }
             }
 

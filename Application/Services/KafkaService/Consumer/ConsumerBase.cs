@@ -19,9 +19,9 @@ namespace Application.Services.KafkaService.Consumer
 
         protected readonly IServiceScopeFactory _scopeFactory;
         protected readonly ILogger<ConsumerBase<TDomain>> _logger;
+
         private readonly KafkaSetting _kafkaSetting;
-        private readonly string _topicName; // The Kafka topic to consume messages
-        private readonly int _workerCount;  // The number of worker tasks to process batches
+        private readonly ConsumeSetting _consumeSetting;
 
         /// <summary>
         /// Initializes the Kafka consumer and the batch processor.
@@ -31,27 +31,23 @@ namespace Application.Services.KafkaService.Consumer
         /// <param name="options">Kafka settings.</param>
         /// <param name="topicName">The Kafka topic to subscribe to.</param>
         /// <param name="workerCount">The number of worker tasks to process batches (default is 3).</param>
-        protected ConsumerBase(IServiceScopeFactory serviceProvider, ILogger<ConsumerBase<TDomain>> logger, IOptions<KafkaSetting> options, string topicName, int workerCount = 3)
+        protected ConsumerBase(IServiceScopeFactory serviceProvider, ILogger<ConsumerBase<TDomain>> logger, IOptions<KafkaSetting> options, Action<ConsumeSetting> config)
         {
             _scopeFactory = serviceProvider;
             _logger = logger;
             _kafkaSetting = options.Value;
-            _topicName = topicName;
-            _workerCount = workerCount;
+            _consumeSetting = new ConsumeSetting();
+            config(_consumeSetting);
 
             // Initialize the batch processor with a custom number of workers
             _batchProcessor = new BatchProcessor(logger);
 
             // Configure the Kafka consumer
-            var optionConsumer = new ProducerConfig()
+            var optionConsumer = new ConsumerConfig()
             {
                 BootstrapServers = _kafkaSetting.BootstrapServers,
-                Acks = Acks.All,
-                CompressionType = CompressionType.Gzip,
-                MessageSendMaxRetries = _kafkaSetting.MessageSendMaxRetries,
-                MessageTimeoutMs = _kafkaSetting.MessageTimeoutMs,
-                RequestTimeoutMs = _kafkaSetting.RequestTimeoutMs,
-                RetryBackoffMs = _kafkaSetting.RetryBackoffMs
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                EnableAutoCommit = true,
             };
 
             // Configure authentication if enabled
@@ -76,10 +72,10 @@ namespace Application.Services.KafkaService.Consumer
         /// <returns>A task representing the ongoing background operation.</returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _consumer.Subscribe(_topicName);
+            _consumer.Subscribe(_consumeSetting.TopicName);
 
             // Create worker tasks to process batches concurrently
-            var workerTasks = Enumerable.Range(0, _workerCount)
+            var workerTasks = Enumerable.Range(0, _consumeSetting.WorkerCount)
                 .Select(_ => Task.Run(() => _batchProcessor.ProcessBatchWorker(stoppingToken, ProcessBatch), stoppingToken))
                 .ToList();
 
@@ -88,7 +84,7 @@ namespace Application.Services.KafkaService.Consumer
                 try
                 {
                     // Consume a message from the Kafka topic with a timeout of 100ms
-                    var consumeResult = _consumer.Consume(TimeSpan.FromMilliseconds(100));
+                    var consumeResult = _consumer.Consume(TimeSpan.FromMilliseconds(_consumeSetting.TimeoutMessageKafka));
 
                     if (consumeResult != null)
                     {
@@ -108,7 +104,7 @@ namespace Application.Services.KafkaService.Consumer
                 }
 
                 // Wait for a short period before trying to consume again
-                await Task.Delay(200, stoppingToken);
+                await Task.Delay(_consumeSetting.TimeConsumeAgain, stoppingToken);
             }
 
             // Cleanup: Unsubscribe from the Kafka topic and close the consumer

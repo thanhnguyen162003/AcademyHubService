@@ -15,18 +15,22 @@ namespace Application.Services.KafkaService.Producer
             _kafkaSetting = options.Value;
 
             // Config for producer
-            var optionProducer = new ConsumerConfig()
+            var optionProducer = new ProducerConfig()
             {
                 BootstrapServers = _kafkaSetting.BootstrapServers,
-                AutoOffsetReset = AutoOffsetReset.Earliest,
-                EnableAutoCommit = true,
+                Acks = Acks.All,
+                CompressionType = CompressionType.Gzip,
+                MessageSendMaxRetries = _kafkaSetting.MessageSendMaxRetries,
+                MessageTimeoutMs = _kafkaSetting.MessageTimeoutMs,
+                RequestTimeoutMs = _kafkaSetting.RequestTimeoutMs,
+                RetryBackoffMs = _kafkaSetting.RetryBackoffMs
             };
 
             if (_kafkaSetting.IsAuthentication)
             {
                 optionProducer.SaslUsername = _kafkaSetting.SaslUsername;
                 optionProducer.SaslPassword = _kafkaSetting.SaslPassword;
-                optionProducer.SecurityProtocol = SecurityProtocol.SaslPlaintext;
+                optionProducer.SecurityProtocol = SecurityProtocol.SaslSsl;
                 optionProducer.SaslMechanism = SaslMechanism.Plain;
             }
 

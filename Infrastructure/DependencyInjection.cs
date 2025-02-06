@@ -19,6 +19,7 @@ namespace Infrastructure
             builder.Services.Configure<DefaultSystem>(builder.Configuration.GetSection("DefaultSystem"));
             builder.Services.Configure<JWTSetting>(builder.Configuration.GetSection("JWTSetting"));
             builder.Services.Configure<WorkerSetting>(builder.Configuration.GetSection("WorkerSetting"));
+            builder.Services.Configure<KafkaSetting>(builder.Configuration.GetSection("KafkaSetting"));
 
             // Set up server
             var setting = builder.Configuration.GetSection("DefaultSystem").Get<DefaultSystem>();

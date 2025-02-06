@@ -103,6 +103,13 @@ public partial class AcademyHubContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdAt");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedAt");
+            entity.Property(e => e.ExpiredAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("expiredAt");
+          
             entity.Property(e => e.Email)
                 .HasColumnType("character varying")
                 .HasColumnName("email");

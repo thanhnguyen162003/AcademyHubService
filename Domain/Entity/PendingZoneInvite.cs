@@ -1,6 +1,8 @@
-﻿namespace Domain.Entity;
+﻿using Domain.CustomEntities;
 
-public partial class PendingZoneInvite
+namespace Domain.Entity;
+
+public partial class PendingZoneInvite : BaseAuditableEntity
 {
     public int Id { get; set; }
 
@@ -12,7 +14,7 @@ public partial class PendingZoneInvite
 
     public string Type { get; set; } = null!;
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime? ExpiredAt { get; set; }
 
     public virtual Zone? Zone { get; set; }
 }
