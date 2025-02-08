@@ -1,4 +1,5 @@
 ﻿using Application.Common.Messages;
+using AutoMapper.Execution;
 using Domain.Entity;
 using Domain.Models.Common;
 using Infrastructure.Repositories;
@@ -26,7 +27,7 @@ namespace Application.Features.MemberFeatures.Commands
         {
             // Get all members of the group
             var members = await _unitOfWork.ZoneMembershipRepository.GetAll(
-                    m => m.GroupId.Equals(request.ZoneId)
+                    m => m.ZoneId.Equals(request.ZoneId)
                 );
 
             // Check if the number of members is enough to divide into groups
@@ -44,18 +45,60 @@ namespace Application.Features.MemberFeatures.Commands
 
             // Divide the members into groups
             var random = new Random();
-            var groupMembers = new List<List<ZoneMembership>>();
-            groupMembers = members
-                .OrderBy(x => random.Next())
-                .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / divideMember)
-                .Select(x => x.Select(v => v.Value).ToList())
-                .ToList();
+            var shuffledMembers = members.OrderBy(x => random.Next()).ToList();
+
+            // Create `NumberGroup` empty lists
+            var groupMembers = Enumerable.Range(0, request.NumberGroup)
+                        .ToDictionary(i => i, _ => new List<ZoneMembership>());
+
+
+            // Distribute members evenly
+            for (int i = 0; i < shuffledMembers.Count; i++)
+            {
+                int groupIndex = i % request.NumberGroup;
+                var member = shuffledMembers[i];
+                groupMembers[groupIndex].Add(member);
+            }
+
+            // Create groups
+            var ids = new List<Guid>();
+            for (int i = 0; i < request.NumberGroup; i++)
+            {
+                var group = new Group()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"Group {i + 1}",
+                    TotalPeople = groupMembers[i].Count,
+                    Leader = groupMembers[i].First().UserId
+                };
+                ids.Add(group.Id);
+                await _unitOfWork.GroupRepository.Add(group);
+            }
+
+            // Update the group of each member
+            foreach (var group in groupMembers)
+            {
+                foreach (var member in group.Value)
+                {
+                    //member.GroupId = ids[group.Key];
+                    members.FirstOrDefault(m => m.Id == member.Id)!.GroupId = ids[group.Key];
+                }
+            }
+            await _unitOfWork.ZoneMembershipRepository.UpdateRange(members);
+
+            if (await _unitOfWork.SaveChangesAsync())
+            {
+                return new APIResponse()
+                {
+                    Status = HttpStatusCode.OK,
+                    Message = MessageZone.GroupMemberSuccess
+                };
+            }
 
             return new APIResponse()
             {
-                Status = HttpStatusCode.OK,
-                Data = groupMembers
+                Status = HttpStatusCode.BadRequest,
+                Message = MessageZone.GroupMemberFailed
             };
         }
     }

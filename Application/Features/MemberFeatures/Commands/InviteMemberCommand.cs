@@ -22,7 +22,6 @@ namespace Application.Features.MemberFeatures.Commands
         public string? Email { get; set; }
         public string? Type { get; set; }
         public Guid? ZoneId { get; set; }
-        public long? PeriodTime { get; set; } // Minutes
     }
 
     public class InviteMemberCommandValidator : AbstractValidator<InviteMemberCommand>
@@ -93,9 +92,17 @@ namespace Application.Features.MemberFeatures.Commands
             if(invite != null)
             {
                 // update invite if exists
+                if (DateTime.Now < invite.ExpiredAt)
+                {
+                    return new APIResponse()
+                    {
+                        Status = HttpStatusCode.BadRequest,
+                        Message = MessageZone.CannotInviteAfter24h
+                    };
+                }
                 invite.Type = request.Type!;
                 invite.InviteBy = userId;
-                invite.ExpiredAt = DateTime.Now.AddMinutes((double)request.PeriodTime!);
+                invite.ExpiredAt = DateTime.Now.AddHours(24);
                 invite.UpdatedAt = DateTime.Now;
                 await _unitOfWork.PendingZoneInviteRepository.Update(invite);
             } else
@@ -108,7 +115,7 @@ namespace Application.Features.MemberFeatures.Commands
                     CreatedAt = DateTime.Now,
                     ZoneId = request.ZoneId!,
                     InviteBy = userId,
-                    ExpiredAt = DateTime.Now.AddMinutes((double)request.PeriodTime!)
+                    ExpiredAt = DateTime.Now.AddHours(24)
                 });
             }
 

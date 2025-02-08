@@ -7,6 +7,7 @@ namespace Infrastructure.Repositories.GenericRepository
     public interface ISqlRepository<T> : IRepository<T> where T : class
     {
         Task<T?> GetById(dynamic[] id);
+        Task UpdateRange(IEnumerable<T> entities);
         Task Delete(dynamic[] id);
         Task<PagedList<T>> GetAll(int page, int eachPage,
                                             string sortBy, bool isAscending = false,

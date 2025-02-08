@@ -47,6 +47,9 @@ namespace Infrastructure
             // Set up configuration Security
             builder.Services.AddJWT(builder.Configuration);
 
+            // Set up policy
+            builder.Services.AddPolicies();
+
             // Set up Swagger
             builder.Services.AddSwagger();
 

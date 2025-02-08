@@ -47,9 +47,9 @@ public partial class AcademyHubContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdAt");
-            entity.Property(e => e.Description)
+            entity.Property(e => e.Noticed)
                 .HasColumnType("character varying")
-                .HasColumnName("description");
+                .HasColumnName("noticed");
             entity.Property(e => e.DueAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("dueAt");

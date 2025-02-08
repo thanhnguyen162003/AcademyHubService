@@ -41,9 +41,16 @@ namespace Application.Features.MemberFeatures.Commands
                     Status = HttpStatusCode.NotFound,
                     Message = MessageZone.InviteIsNotFound
                 };
+            } else if(pendingZoneInvite.ExpiredAt < DateTime.Now)
+            {
+                return new APIResponse()
+                {
+                    Status = HttpStatusCode.BadRequest,
+                    Message = MessageZone.InviteIsExpired
+                };
             }
 
-            if(request.RelyInvite == RelyInvite.Accept)
+            if (request.RelyInvite == RelyInvite.Accept)
             {
                 await _unitOfWork.ZoneMembershipRepository.Add(new ZoneMembership()
                 {
@@ -56,7 +63,7 @@ namespace Application.Features.MemberFeatures.Commands
                 });
             }
 
-            await _unitOfWork.PendingZoneInviteRepository.Delete(pendingZoneInvite);
+            await _unitOfWork.PendingZoneInviteRepository.Delete(pendingZoneInvite.Id);
             
             if(await _unitOfWork.SaveChangesAsync())
             {

@@ -8,11 +8,11 @@ public partial class Assignment : BaseAuditableEntity
 
     public Guid ZoneId { get; set; }
 
-    public string Type { get; set; } = null!;
+    public string? Type { get; set; }
 
-    public string Title { get; set; } = null!;
+    public string? Title { get; set; }
 
-    public string Description { get; set; } = null!;
+    public string? Noticed { get; set; }
 
     public int? TotalQuestion { get; set; }
 

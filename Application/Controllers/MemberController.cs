@@ -1,4 +1,5 @@
 ﻿using Application.Features.MemberFeatures.Commands;
+using Domain.Constants;
 using Domain.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +22,7 @@ namespace Application.Controllers
         [ProducesResponseType(typeof(APIResponse<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
-        [Authorize]
+        [Authorize(PolicyType.Teacher)]
         public async Task<IActionResult> InviteMember([FromBody] InviteMemberCommand command, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(command, cancellationToken);
@@ -32,7 +33,7 @@ namespace Application.Controllers
         [HttpPost("reply")]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
-        [Authorize]
+        [Authorize(PolicyType.AcademicUser)]
         public async Task<IActionResult> ReplyToInvite([FromBody] ReplyInviteZoneCommand command, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(command, cancellationToken);
@@ -43,6 +44,7 @@ namespace Application.Controllers
         [HttpPost("group")]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+        [Authorize(PolicyType.Teacher)]
         public async Task<IActionResult> GroupMember([FromBody] GroupMemberCommand command, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(command, cancellationToken);

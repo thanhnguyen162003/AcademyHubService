@@ -80,6 +80,13 @@ namespace Infrastructure.Repositories.GenericRepository
             return Task.CompletedTask;
         }
 
+        public Task UpdateRange(IEnumerable<T> entities)
+        {
+            _dbSet.UpdateRange(entities);
+
+            return Task.CompletedTask;
+        }
+
         //Custom Repository Get All 
 
         public async Task<IEnumerable<T>> GetAll(params Expression<Func<T, object>>[]? includeProperties)
