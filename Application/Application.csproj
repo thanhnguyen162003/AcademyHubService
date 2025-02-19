@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\AssignmentFeatures\Queries\" />
     <Folder Include="Services\KafkaService\EventHandler\" />
   </ItemGroup>
 
