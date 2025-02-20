@@ -1,4 +1,5 @@
 ﻿using Application.Common.Messages;
+using Application.Common.Models.TestContent;
 using Application.Messages;
 using Application.Services.Authentication;
 using AutoMapper;
@@ -23,10 +24,6 @@ namespace Application.Features.AssignmentFeatures.Commands
 
         public string? Noticed { get; set; }
 
-        public int? TotalQuestion { get; set; }
-
-        public int? TotalTime { get; set; }
-
         public DateTime? AvailableAt { get; set; }
 
         public DateTime? DueAt { get; set; }
@@ -34,6 +31,7 @@ namespace Application.Features.AssignmentFeatures.Commands
         public DateTime? LockedAt { get; set; }
 
         public bool? Published { get; set; }
+        public List<TestContentCreateModel> TestContent { get; set; }
     }
     public class UpdateAssignmentCommandValidator : AbstractValidator<UpdateAssignmentCommand>
     {
@@ -103,6 +101,35 @@ namespace Application.Features.AssignmentFeatures.Commands
 
             assignment = _mapper.Map(request, assignment);
             assignment.UpdatedAt = DateTime.Now;
+
+            if (request.TestContent != null)
+            {
+                var testContentExist = await _unitOfWork.TestContentRepository.GetAll(x => x.Assignmentid.Equals(assignment.Id));
+
+                if (testContentExist != null)
+                {
+                    await _unitOfWork.TestContentRepository.Delete(testContentExist);
+                }
+
+                var testContents = request.TestContent.Select((x, index) =>
+                {
+                    if (x.Answers.Count() <= x.CorrectAnswer)
+                    {
+                        throw new ValidationException($"Correct answer is not number of answer");
+                    }
+
+                    var ketContent = _mapper.Map<TestContent>(x, opts =>
+                    {
+                        opts.Items["Assignmentid"] = assignment.Id;
+                        opts.Items["Order"] = index + 1;
+                    });
+
+                    return ketContent;
+                }).ToList();
+
+                await _unitOfWork.TestContentRepository.CreateTestContent(testContents);
+                assignment.TotalQuestion = testContents.Count();
+            }
 
             await _unitOfWork.AssignmentRepository.Update(assignment);
 

@@ -16,6 +16,7 @@
         public int FolderCount { get; set; }
         public int AssignmentCount { get; set; }
         public Guid? CreatedBy { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
     }
 }

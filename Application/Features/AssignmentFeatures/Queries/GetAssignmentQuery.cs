@@ -1,32 +1,51 @@
-﻿using AutoMapper;
+﻿using Application.Common.Models.AssignmentModel;
+using Application.Common.Models.ZoneModel;
+using AutoMapper;
 using Domain.Entity;
 using Domain.Models.Common;
+using Infrastructure;
 using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.AssignmentFeatures.Queries
 {
-    public record GetAssignmentQuery : IRequest<PagedList<Assignment>>
+    public record GetAssignmentQuery : IRequest<PagedList<AssignmentResponseModel>>
     {
         public string? Search { get; set; }
 
+        [Required]
         public int PageSize { get; set; }
-
+        [Required]
         public int PageNumber { get; set; }
 
         public Guid ZoneId;
+        [Required]
+        public bool IsAscending { get; set; }
     }
 
-    public class GetAssignmentQueryHandler: IRequestHandler<GetAssignmentQuery, PagedList<Assignment>>
+    public class GetAssignmentQueryHandler: IRequestHandler<GetAssignmentQuery, PagedList<AssignmentResponseModel>>
     {
-
-        public async Task<PagedList<Assignment>> Handle(GetAssignmentQuery request, CancellationToken cancellationToken)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        //private readonly IAuthenticationFeature _claimInterface;
+        public GetAssignmentQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-           
-            return new PagedList<Assignment>();
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            //_claimInterface = claimInterface;
+        }
 
+        public async Task<PagedList<AssignmentResponseModel>> Handle(GetAssignmentQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _unitOfWork.AssignmentRepository.GetAssignment(request.PageNumber, request.PageSize, request.Search, request.IsAscending);
+            if (!result.Any())
+            {
+                return new PagedList<AssignmentResponseModel>(new List<AssignmentResponseModel>(), 0, 0, 0);
+            }
+            return _mapper.Map<PagedList<AssignmentResponseModel>>(result);
         }
     }
 }

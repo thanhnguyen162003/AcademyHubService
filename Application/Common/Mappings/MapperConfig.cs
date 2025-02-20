@@ -1,4 +1,5 @@
 ﻿using Application.Common.Models.AssignmentModel;
+using Application.Common.Models.SubmissionContent;
 using Application.Common.Models.TestContent;
 using Application.Common.Models.ZoneMembershipModel;
 using Application.Common.Models.ZoneModel;
@@ -8,6 +9,7 @@ using AutoMapper;
 using Domain.Entity;
 using Domain.Models.Common;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Text.Json;
 
 namespace Application.Common.Mappings
 {
@@ -61,25 +63,52 @@ namespace Application.Common.Mappings
             CreateMap<CreateAssignmentCommand, Assignment>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.Now))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
+                .ForMember(dest => dest.Questions, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<UpdateAssignmentCommand, Assignment>()
+                .ForMember(dest => dest.Questions, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Assignment, AssignmentResponseModel>()
-                .ForMember(dest => dest.TotalQuestion, opt => opt.MapFrom(src => src.Questions.Count()))
                 .ForMember(dest => dest.SubmissionsCount, opt => opt.MapFrom(src => src.Submissions.Count()))
+                .ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Assignment, AssignmentDetailResponseModel>()
+                .ForMember(dest => dest.Submissions, opt => opt.MapFrom(src => src.Submissions))
+                .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions))
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<PagedList<Assignment>, PagedList<AssignmentResponseModel>>();
             #endregion
 
-
+            #region Submissions
+            CreateMap<Submission, SubmissionResponseModel>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Member.UserId))
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            #endregion
 
             #region TestContent
             CreateMap<TestContentCreateModel, TestContent>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
-                .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question == null ? null : string.Join(",", src.Question)));
+                .ForMember(dest => dest.Assignmentid, opt => opt.MapFrom((src, dest, _, context) => context.Items["Assignmentid"]))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom((src, dest, _, context) => context.Items["Order"]))
+                .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => SerializeAnswers(src.Answers)));
+
+            CreateMap<TestContent, TestContentResponseModel>()
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             #endregion
+        }
+        private static string SerializeAnswers(List<string>? answers)
+        {
+            if (answers == null) return null; // Handle null case appropriately
+            return JsonSerializer.Serialize(answers);  // Or JsonConvert.SerializeObject(answers);
         }
 
     }
+
 }

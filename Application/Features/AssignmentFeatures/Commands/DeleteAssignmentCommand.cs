@@ -58,6 +58,10 @@ namespace Application.Features.AssignmentFeatures.Commands
                     Message = MessageCommon.Forbidden
                 };
             }
+
+            var testContents = await _unitOfWork.TestContentRepository.GetAll(k => k.Assignmentid.Equals(request.Id));
+
+            await _unitOfWork.TestContentRepository.Delete(testContents);
             await _unitOfWork.AssignmentRepository.Delete(assignment.Id);
 
             var result = await _unitOfWork.SaveChangesAsync();

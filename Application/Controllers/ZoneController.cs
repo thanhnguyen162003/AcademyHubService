@@ -72,18 +72,20 @@ namespace Application.Controllers
             
             return StatusCode((int)result.Status, result);
         }
+
         [HttpGet]
         [ProducesResponseType(typeof(PagedList<ZoneResponseModel>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetZone([FromQuery] GetZoneQuery getKetQuery, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetZone([FromQuery] GetZoneQuery getZoneQuery, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(getKetQuery, cancellationToken);
+            var result = await _sender.Send(getZoneQuery, cancellationToken);
 
             Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(result.Metadata));
 
             return Ok(result);
         }
+
         [HttpGet("{zoneId}")]
-        [ProducesResponseType(typeof(PagedList<ZoneResponseModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ZoneDetailResponseModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetZoneDetail(Guid zoneId, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(new GetZoneDetailQuery { ZoneId = zoneId }, cancellationToken);

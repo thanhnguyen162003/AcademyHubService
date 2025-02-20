@@ -19,7 +19,9 @@ namespace Application.Features.ZoneFeatures.Queries
         public int PageSize { get; set; }
         [Required]
         public int PageNumber { get; set; }
-        
+        [Required]
+        public bool IsAscending { get; set; }
+
 
     }
 
@@ -36,7 +38,9 @@ namespace Application.Features.ZoneFeatures.Queries
         }
         public async Task<PagedList<ZoneResponseModel>> Handle(GetZoneQuery request, CancellationToken cancellationToken)
         {
-            var result = await _unitOfWork.ZoneRepository.GetZoneForStudent(request.PageNumber, request.PageSize, request.Search);
+            var result = await _unitOfWork.ZoneRepository.GetZoneForStudent(request.PageNumber, request.PageSize, request.Search, request.IsAscending);
+            
+            
             if (!result.Any()) 
             {
                 return new PagedList<ZoneResponseModel>(new List<ZoneResponseModel>(), 0, 0, 0);

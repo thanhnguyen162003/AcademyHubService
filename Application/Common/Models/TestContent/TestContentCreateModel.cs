@@ -8,9 +8,6 @@
 
         public string? Question { get; set; }
 
-        public int? Order { get; set; }
-
-        public double? Score { get; set; }
 
     }
 }

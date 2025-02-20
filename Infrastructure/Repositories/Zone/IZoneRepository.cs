@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories
 {
     public interface IZoneRepository : ISqlRepository<Zone>
     {
-        Task<PagedList<Zone>> GetZoneForStudent(int page, int pageSize, string? search);
+        Task<PagedList<Zone>> GetZoneForStudent(int page, int pageSize, string? search, bool isAscending);
         Task<Zone> GetZoneDetail(Guid zoneId);
     }
 }

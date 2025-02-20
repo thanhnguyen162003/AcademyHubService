@@ -1,5 +1,6 @@
 ﻿using Application.Common.Helper;
 using Application.Common.Messages;
+using Application.Common.Models.TestContent;
 using Application.Features.ZoneFeatures.Commands;
 using Application.Messages;
 using Application.Services.Authentication;
@@ -9,6 +10,7 @@ using Domain.Models.Common;
 using FluentValidation;
 using Infrastructure.Repositories;
 using MediatR;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -25,10 +27,6 @@ namespace Application.Features.AssignmentFeatures.Commands
 
         public string? Noticed { get; set; }
 
-        public int? TotalQuestion { get; set; }
-
-        public int? TotalTime { get; set; }
-
         public DateTime? AvailableAt { get; set; }
 
         public DateTime? DueAt { get; set; }
@@ -36,6 +34,7 @@ namespace Application.Features.AssignmentFeatures.Commands
         public DateTime? LockedAt { get; set; }
 
         public bool? Published { get; set; }
+        public List<TestContentCreateModel> TestContent { get; set; }
     }
     public class CreateAssigmentCommandValidator : AbstractValidator<CreateAssignmentCommand>
     {
@@ -101,8 +100,31 @@ namespace Application.Features.AssignmentFeatures.Commands
                     Message = MessageCommon.Forbidden
                 };
             }
+
             var assignment = _mapper.Map<Assignment>(request);
             assignment.CreatedBy = _authenticationService.User.UserId;
+
+            if (request.TestContent != null)
+            {
+                var testContents = request.TestContent.Select((x, index) =>
+                {
+                    if (x.Answers.Count() <= x.CorrectAnswer)
+                    {
+                        throw new ValidationException($"Correct answer is not number of answer");
+                    }
+
+                    var ketContent = _mapper.Map<TestContent>(x, opts =>
+                    {
+                        opts.Items["Assignmentid"] = assignment.Id;
+                        opts.Items["Order"] = index + 1;
+                    });
+
+                    return ketContent;
+                }).ToList();
+
+                await _unitOfWork.TestContentRepository.CreateTestContent(testContents);
+                assignment.TotalQuestion = testContents.Count();
+            }
 
             await _unitOfWork.AssignmentRepository.Add(assignment);
 

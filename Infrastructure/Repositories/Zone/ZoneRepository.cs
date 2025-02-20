@@ -13,12 +13,20 @@ namespace Infrastructure.Repositories
         { 
         }
 
-        public async Task<PagedList<Zone>> GetZoneForStudent(int page, int pageSize, string? search)
+        public async Task<PagedList<Zone>> GetZoneForStudent(int page, int pageSize, string? search, bool isAscending)
         {
             var query = _dbSet.AsQueryable();
             if (!search.IsNullOrEmpty())
             {
                 query = _dbSet.Where(x => x.Name.Contains(search) || x.Description.Contains(search));
+            }
+            if (isAscending)
+            {
+                query = query.OrderBy(x => x.CreatedAt); 
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.CreatedAt); 
             }
             return await query.ToPagedListAsync(page, pageSize);
         }

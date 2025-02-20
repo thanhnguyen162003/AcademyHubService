@@ -1,11 +1,16 @@
-﻿using Application.Common.Models.TestContent;
+﻿using Application.Common.Models.AssignmentModel;
+using Application.Common.Models.TestContent;
+using Application.Common.Models.ZoneModel;
 using Application.Features.AssignmentFeatures.Commands;
+using Application.Features.AssignmentFeatures.Queries;
 using Application.Features.ZoneFeatures.Commands;
+using Application.Features.ZoneFeatures.Queries;
 using Domain.Constants;
 using Domain.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Application.Controllers
 {
@@ -58,5 +63,23 @@ namespace Application.Controllers
             return StatusCode((int)result.Status, result);
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedList<AssignmentResponseModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAssignment([FromQuery] GetAssignmentQuery getAssignmentQuery, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(getAssignmentQuery, cancellationToken);
+
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(result.Metadata));
+
+            return Ok(result);
+        }
+
+        [HttpGet("{assignmentId}")]
+        [ProducesResponseType(typeof(AssignmentDetailResponseModel), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetZoneDetail(Guid assignmentId, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(new GetAssignmentDetailQuery { AssignmentId = assignmentId }, cancellationToken);
+            return Ok(result);
+        }
     }
 }

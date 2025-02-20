@@ -5,7 +5,7 @@ namespace Application.Common.Models.ZoneMembershipModel
     public class ZoneMembershipResponseModel
     {
         public int Id { get; set; }
-
+        public Guid? ZoneId { get; set; }
         public Guid? GroupId { get; set; }
 
         public Guid? UserId { get; set; }

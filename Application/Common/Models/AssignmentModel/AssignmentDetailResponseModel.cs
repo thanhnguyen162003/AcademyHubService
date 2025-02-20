@@ -1,8 +1,10 @@
-﻿using Domain.Entity;
+﻿using Application.Common.Models.SubmissionContent;
+using Application.Common.Models.TestContent;
+using Domain.Entity;
 
 namespace Application.Common.Models.AssignmentModel;
 
-public partial class AssignmentResponseModel
+public partial class AssignmentDetailResponseModel
 {
     public Guid Id { get; set; }
 
@@ -28,6 +30,8 @@ public partial class AssignmentResponseModel
 
     public Guid? CreatedBy { get; set; }
 
-    public int SubmissionsCount { get; set; }
+    public ICollection<TestContentResponseModel> Questions { get; set; } = new List<TestContentResponseModel>();
+
+    public ICollection<SubmissionResponseModel> Submissions { get; set; } = new List<SubmissionResponseModel>();
 
 }

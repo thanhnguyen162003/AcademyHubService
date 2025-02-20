@@ -12,22 +12,15 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<bool> CreateTestContent(List<TestContent> test)
+        public async Task CreateTestContent(List<TestContent> test)
         {
-            try
-            {
-                await _dbSet.AddRangeAsync(test);
-                var result = await _context.SaveChangesAsync();
-                if (result > 0)
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
+            await _dbSet.AddRangeAsync(test);
+        }
+        public async Task Delete(IEnumerable<TestContent> testContents)
+        {
+            _dbSet.RemoveRange(testContents);
+
+            await Task.CompletedTask;
         }
     }
 }
