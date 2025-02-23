@@ -88,7 +88,8 @@ namespace Application.Common.Mappings
             CreateMap<Submission, SubmissionResponseModel>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Member.UserId))
                 .ReverseMap()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForAllMembers(opts =>opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<PagedList<Submission>, PagedList<SubmissionResponseModel>>();
             #endregion
 
             #region TestContent
@@ -99,14 +100,39 @@ namespace Application.Common.Mappings
                 .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => SerializeAnswers(src.Answers)));
 
             CreateMap<TestContent, TestContentResponseModel>()
+                .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => DeserializeAnswers(src.Answers)))
                 .ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<TestContent, TestContentSubmissionResponseModel>()
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             #endregion
         }
         private static string SerializeAnswers(List<string>? answers)
         {
-            if (answers == null) return null; // Handle null case appropriately
-            return JsonSerializer.Serialize(answers);  // Or JsonConvert.SerializeObject(answers);
+            if (answers == null) return null;
+            return JsonSerializer.Serialize(answers);
+        }
+
+        private static List<string>? DeserializeAnswers(string? answersJson)
+        {
+            if (string.IsNullOrEmpty(answersJson)) return null; // Handle null or empty JSON string
+
+            try
+            {
+                return JsonSerializer.Deserialize<List<string>>(answersJson); // Or JsonConvert.DeserializeObject<List<string>>(answersJson);
+            }
+            catch (JsonException ex) // Handle potential JSON parsing errors
+            {
+                // Log the exception (recommended)
+                Console.WriteLine($"Error deserializing answers: {ex.Message}");
+                // Or throw the exception if you want it to propagate
+                // throw;
+
+                return null; // Or return an empty list: return new List<string>(); if that's more appropriate for your use case
+            }
         }
 
     }

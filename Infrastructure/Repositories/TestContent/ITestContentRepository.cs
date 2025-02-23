@@ -7,5 +7,6 @@ namespace Infrastructure.Repositories
     {
         Task CreateTestContent(List<TestContent> test);
         Task Delete(IEnumerable<TestContent> testContents);
+        Task<Dictionary<Guid, string>> SubmitTest(List<TestContent> test);
     }
 }
