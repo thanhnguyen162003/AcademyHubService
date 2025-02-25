@@ -20,6 +20,9 @@
         public const string AssignmentCreatedSuccess = "Assignment has been created success";
         public const string AssignmentCreatedFailed = "Assignment could not be created";
 
+        public const string SubmissionCreatedSuccess = "Nộp bài thành công";
+        public const string SubmissionCreatedFailed = "Nộp bài thất bại";
+
         public const string TestContentCreatedSuccess = "Câu hỏi tạo thành công";
         public const string TestContentcreatedFailed = "Câu hỏi tạo thất bại";
     }

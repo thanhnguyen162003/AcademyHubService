@@ -59,7 +59,7 @@ namespace Application.Features.AssignmentFeatures.Commands
 
             RuleFor(p => p.LockedAt)
                 .NotNull().WithMessage("{PropertyName} is required.")
-                .GreaterThan(p => p.DueAt).WithMessage("{PropertyName} must be after DueAt."); 
+                .GreaterThanOrEqualTo(p => p.DueAt).WithMessage("{PropertyName} must be equal or after DueAt."); 
         }
     }
     public class CreateAssignmentCommandHandler : IRequestHandler<CreateAssignmentCommand, APIResponse>

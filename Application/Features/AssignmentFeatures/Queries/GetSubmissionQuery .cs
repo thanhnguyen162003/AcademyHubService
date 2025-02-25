@@ -9,21 +9,14 @@ using System.Text.Json.Serialization;
 
 namespace Application.Features.AssignmentFeatures.Queries
 {
-    public record GetSubmissionQuery : IRequest<PagedList<SubmissionResponseModel>>
+    public record GetSubmissionQuery : IRequest<SubmissionResponseModel>
     {
         [JsonIgnore]
         public Guid AssignmentId { get; set; }
 
-        [Required]
-        public int PageSize { get; set; }
-        [Required]
-        public int PageNumber { get; set; }
-
-        [Required]
-        public bool IsAscending { get; set; }
     }
 
-    public class GetSubmissionQueryHandler : IRequestHandler<GetSubmissionQuery, PagedList<SubmissionResponseModel>>
+    public class GetSubmissionQueryHandler : IRequestHandler<GetSubmissionQuery, SubmissionResponseModel>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -35,24 +28,20 @@ namespace Application.Features.AssignmentFeatures.Queries
             _authenticationService = authenticationService;
         }
 
-        public async Task<PagedList<SubmissionResponseModel>> Handle(GetSubmissionQuery request, CancellationToken cancellationToken)
+        public async Task<SubmissionResponseModel> Handle(GetSubmissionQuery request, CancellationToken cancellationToken)
         {
             // Check assignment exists
             var assignment = await _unitOfWork.AssignmentRepository.GetById(request.AssignmentId);
 
             if (assignment == null)
             {
-                return new PagedList<SubmissionResponseModel>(new List<SubmissionResponseModel>(), 0, 0, 0);
+                return null;
             }
             var zone = await _unitOfWork.ZoneRepository.GetById(assignment.ZoneId);
             var userId = _authenticationService.User.UserId;
             var membership = await _unitOfWork.ZoneMembershipRepository.GetMembership(userId, zone.Id);
-            var result = await _unitOfWork.SubmissionRepository.GetSubmission(request.AssignmentId, membership.Id ,request.PageNumber, request.PageSize, request.IsAscending);
-            if (!result.Any())
-            {
-                return new PagedList<SubmissionResponseModel>(new List<SubmissionResponseModel>(), 0, 0, 0);
-            }
-            return _mapper.Map<PagedList<SubmissionResponseModel>>(result);
+            var result = await _unitOfWork.SubmissionRepository.GetSubmission(request.AssignmentId, membership.Id);
+            return _mapper.Map<SubmissionResponseModel>(result);
         }
     }
 }

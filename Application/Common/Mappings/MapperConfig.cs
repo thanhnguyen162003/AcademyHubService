@@ -89,7 +89,6 @@ namespace Application.Common.Mappings
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Member.UserId))
                 .ReverseMap()
                 .ForAllMembers(opts =>opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<PagedList<Submission>, PagedList<SubmissionResponseModel>>();
             #endregion
 
             #region TestContent

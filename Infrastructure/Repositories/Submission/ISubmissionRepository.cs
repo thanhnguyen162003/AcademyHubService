@@ -6,6 +6,6 @@ namespace Infrastructure.Repositories
 {
     public interface ISubmissionRepository : ISqlRepository<Submission>
     {
-        Task<PagedList<Submission>> GetSubmission(Guid assignmentId, int memberId, int page, int pageSize, bool isAscending);
+        Task<Submission> GetSubmission(Guid assignmentId, int memberId);
     }
 }

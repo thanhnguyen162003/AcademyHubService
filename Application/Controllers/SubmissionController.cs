@@ -49,12 +49,22 @@ namespace Application.Controllers
             var result = await _sender.Send(new GetSubmissionQuery 
             { 
                 AssignmentId = assignmentId,
-                IsAscending = getSubmissionQuery.IsAscending,
-                PageNumber = getSubmissionQuery.PageNumber, 
-                PageSize = getSubmissionQuery.PageSize, 
             }
             , cancellationToken);
             return Ok(result);
+        }
+
+        [HttpPut("{assignmentId}")]
+        [ProducesResponseType(typeof(APIResponse<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(APIResponse<Guid>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(APIResponse), StatusCodes.Status403Forbidden)]
+        [Authorize(PolicyType.Teacher)]
+        public async Task<IActionResult> LeaveZone(Guid assignmentId, [FromBody]ReSubmissionCommand reSubmissionCommand, CancellationToken cancellationToken = default)
+        {
+            reSubmissionCommand.AssignmentId = assignmentId;
+            var result = await _sender.Send(reSubmissionCommand, cancellationToken);
+
+            return StatusCode((int)result.Status, result);
         }
 
     }
