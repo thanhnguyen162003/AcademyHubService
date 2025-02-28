@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 
 namespace Application.Features.AssignmentFeatures.Commands
 {
-    public class CreateSubmissionCommand : IRequest<APIResponse>
+    public class ReSubmissionCommand : IRequest<APIResponse>
     {
         [JsonIgnore]
         public Guid AssignmentId { get; set; }
@@ -20,20 +20,20 @@ namespace Application.Features.AssignmentFeatures.Commands
 
 
     }
-    public class CreateSubmissionCommandHandler : IRequestHandler<CreateSubmissionCommand, APIResponse>
+    public class ReSubmissionCommandHandler : IRequestHandler<ReSubmissionCommand, APIResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
 
-        public CreateSubmissionCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IAuthenticationService authenticationService)
+        public ReSubmissionCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IAuthenticationService authenticationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _authenticationService = authenticationService;
         }
 
-        public async Task<APIResponse> Handle(CreateSubmissionCommand request, CancellationToken cancellationToken)
+        public async Task<APIResponse> Handle(ReSubmissionCommand request, CancellationToken cancellationToken)
         {
             // Check assignment exists
             var assignment = await _unitOfWork.AssignmentRepository.GetById(request.AssignmentId);
@@ -79,20 +79,15 @@ namespace Application.Features.AssignmentFeatures.Commands
                     Message = MessageCommon.Forbidden
                 };
             }
+            var oldSubmit = await _unitOfWork.SubmissionRepository.GetSubmission(request.AssignmentId, membership.Id);
+
             var listTest = _mapper.Map<List<TestContent>>(request.Answer);
             var wrongAnswer = await _unitOfWork.TestContentRepository.SubmitTest(listTest);
-            //test
-            Submission submission = new Submission()
-            {
-                Id = Guid.NewGuid(),
-                AssignmentId = assignment.Id,
-                CreatedAt = DateTime.Now,
-                MemberId = membership.Id,
-                Score = ((double)assignment.TotalQuestion - (double)wrongAnswer.Count) / (double)assignment.TotalQuestion * 10,
 
-            };
+            oldSubmit.Score = ((double)assignment.TotalQuestion - (double)wrongAnswer.Count) / (double)assignment.TotalQuestion * 10;
+            oldSubmit.UpdatedAt = DateTime.Now;
 
-            await _unitOfWork.SubmissionRepository.Add(submission);
+            await _unitOfWork.SubmissionRepository.Update(oldSubmit);
             var result = await _unitOfWork.SaveChangesAsync();
             if (result)
             {
@@ -100,7 +95,7 @@ namespace Application.Features.AssignmentFeatures.Commands
                 {
                     Status = HttpStatusCode.OK,
                     Message = MessageZone.AssignmentCreatedSuccess,
-                    Data = submission.Score
+                    Data = oldSubmit.Score
                 };
             }
 

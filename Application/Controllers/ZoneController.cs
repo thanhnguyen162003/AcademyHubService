@@ -1,9 +1,15 @@
-﻿using Application.Features.ZoneFeatures.Commands;
+﻿using Application.Common.Models.ZoneModel;
+using Application.Common.Ultils;
+using Application.Features.ZoneFeatures.Commands;
+using Application.Features.ZoneFeatures.Queries;
+using AutoMapper;
 using Domain.Constants;
 using Domain.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 
 namespace Application.Controllers
 {
@@ -59,7 +65,7 @@ namespace Application.Controllers
         [ProducesResponseType(typeof(APIResponse<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<Guid>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status403Forbidden)]
-        [Authorize(PolicyType.AcademicUser)]
+        [Authorize(PolicyType.Teacher)]
         public async Task<IActionResult> LeaveZone(Guid id, CancellationToken cancellationToken = default)
         {
             var result = await _sender.Send(new LeaveZoneCommand { ZoneId = id }, cancellationToken);
@@ -67,5 +73,23 @@ namespace Application.Controllers
             return StatusCode((int)result.Status, result);
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedList<ZoneResponseModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetZone([FromQuery] GetZoneQuery getZoneQuery, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(getZoneQuery, cancellationToken);
+
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(result.Metadata));
+
+            return Ok(result);
+        }
+
+        [HttpGet("{zoneId}")]
+        [ProducesResponseType(typeof(ZoneDetailResponseModel), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetZoneDetail(Guid zoneId, CancellationToken cancellationToken = default)
+        {
+            var result = await _sender.Send(new GetZoneDetailQuery { ZoneId = zoneId }, cancellationToken);
+            return Ok(result);
+        }
     }
 }
