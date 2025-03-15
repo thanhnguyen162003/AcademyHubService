@@ -31,9 +31,6 @@ namespace Application.Features.ZoneFeatures.Commands
             RuleFor(p => p.LogoUrl)
                 .Must(Utils.IsValidUrl).WithMessage("{PropertyName} must be a valid URL.");
 
-            RuleFor(p => p.BannerUrl)
-                .Must(Utils.IsValidUrl).WithMessage("{PropertyName} must be a valid URL.");
-
         }
     }
 
