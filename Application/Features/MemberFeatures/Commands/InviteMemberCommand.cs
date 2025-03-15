@@ -135,8 +135,8 @@ namespace Application.Features.MemberFeatures.Commands
                         Type = request.Type!,
                         Description = zone.Description!,
                         BannerUrl = zone.BannerUrl!,
-                        AcceptLink = $"{UrlConstant.ClientUrl}/api/v1/{zone.Id}/members/reply/accept",
-                        RejectLink = $"{UrlConstant.ClientUrl}/api/v1/{zone.Id}/members/reply/reject"
+                        AcceptLink = $"{UrlConstant.ClientUrl}/zone/{zone.Id}/reply/accept",
+                        RejectLink = $"{UrlConstant.ClientUrl}/zone/{zone.Id}/reply/reject"
                     }
                 });
 
