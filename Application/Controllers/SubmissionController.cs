@@ -59,7 +59,7 @@ namespace Application.Controllers
         [ProducesResponseType(typeof(APIResponse<Guid>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status403Forbidden)]
         [Authorize(PolicyType.Teacher)]
-        public async Task<IActionResult> LeaveZone(Guid assignmentId, [FromBody]ReSubmissionCommand reSubmissionCommand, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> ReSubmission(Guid assignmentId, [FromBody]ReSubmissionCommand reSubmissionCommand, CancellationToken cancellationToken = default)
         {
             reSubmissionCommand.AssignmentId = assignmentId;
             var result = await _sender.Send(reSubmissionCommand, cancellationToken);
