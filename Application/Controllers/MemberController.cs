@@ -58,15 +58,11 @@ namespace Application.Controllers
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMembers([FromQuery] GetMemberQuery query, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(query, cancellationToken);
+            dynamic result = await _sender.Send(query, cancellationToken);
 
-            //Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(new Metadata()
-            //{
-            //    CurrentPage = 1,
-            //    PageSize = (int)result.GetType().GetProperty("PageSize")?.GetValue(result)!,
-            //    TotalPages = 1,
-            //    TotalCount =1
-            //}));
+            Metadata metadata = result.Metadata ?? new Metadata();
+
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
 
             return Ok(result);
         }
