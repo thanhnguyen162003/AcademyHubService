@@ -56,6 +56,9 @@ namespace Infrastructure
             // Add Services
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            // Set up grpc
+            builder.Services.AddGrpcConfig(builder.Configuration);
+
             // Anothers
             builder.Services.AddControllers();
             builder.Services.AddAuthorization();

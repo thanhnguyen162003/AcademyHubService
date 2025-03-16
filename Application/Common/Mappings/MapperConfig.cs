@@ -1,4 +1,5 @@
 ﻿using Application.Common.Models.AssignmentModel;
+using Application.Common.Models.OtherModel;
 using Application.Common.Models.SubmissionContent;
 using Application.Common.Models.TestContent;
 using Application.Common.Models.ZoneMembershipModel;
@@ -106,6 +107,22 @@ namespace Application.Common.Mappings
             CreateMap<TestContent, TestContentSubmissionResponseModel>()
                 .ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            #endregion
+
+            #region Member
+
+            CreateMap<ZoneMembership, MemberZoneResponseModel>()
+                .ForMember(src => src.Role, opt => opt.MapFrom(src => src.Type));
+
+            CreateMap<PendingZoneInvite, MemberPendingResponseModel>()
+                .ForMember(src => src.Role, opt => opt.MapFrom(src => src.Type));
+
+            CreateMap<PagedList<ZoneMembership>, PagedList<MemberZoneResponseModel>>();
+            CreateMap<PagedList<PendingZoneInvite>, PagedList<MemberPendingResponseModel>>();
+
+            CreateMap<AcademicUserResponse, UserModel>()
+                .ForMember(src => src.UserId, opt => opt.MapFrom(src => src.UserId));
 
             #endregion
         }

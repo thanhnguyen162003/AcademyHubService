@@ -1,4 +1,6 @@
-﻿namespace Domain.Enums
+﻿using System.Text.Json.Serialization;
+
+namespace Domain.Enums
 {
     public class ZoneEnums
     {
@@ -12,6 +14,13 @@
         {
             Accept = 1,
             Reject = 2
+        }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public enum MemberQueryType
+        {
+            Member = 1,
+            Pending = 2,
         }
 
     }
