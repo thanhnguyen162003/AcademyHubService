@@ -8,6 +8,7 @@ namespace Infrastructure.Repositories.GenericRepository
     {
         Task<T?> GetById(dynamic[] id);
         Task UpdateRange(IEnumerable<T> entities);
+        Task AddRange(IEnumerable<T> entities);
         Task Delete(dynamic[] id);
         Task<PagedList<T>> GetAll(int page, int eachPage,
                                             string sortBy, bool isAscending = false,

@@ -30,5 +30,13 @@ namespace Infrastructure.Repositories
             return await _dbSet.AnyAsync(x => x.ZoneId.Equals(zoneId) && x.Email!.Equals(email) && (x.DeletedAt == null));
         }
 
+        public async Task<IEnumerable<string>> CheckMemberInZone(IEnumerable<string> emails, Guid zoneId)
+        {
+            return await _dbSet
+                .Where(x => x.ZoneId.Equals(zoneId) && emails.Contains(x.Email!) && x.DeletedAt == null)
+                .Select(x => x.Email!)
+                .ToListAsync();
+        }
+
     }
 }

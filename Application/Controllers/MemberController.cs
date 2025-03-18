@@ -20,7 +20,7 @@ namespace Application.Controllers
             _sender = sender;
         }
 
-        [HttpPost("invite")]
+        [HttpPost("invites")]
         [ProducesResponseType(typeof(APIResponse<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]

@@ -48,6 +48,11 @@ namespace Infrastructure.Repositories.GenericRepository
             await _dbSet.AddAsync(entity);
         }
 
+        public async Task AddRange(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+
         public async Task Delete(dynamic id)
         {
             var entity = await _dbSet.FindAsync(id);

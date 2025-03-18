@@ -1,6 +1,7 @@
 ﻿using Application.Common.Helper;
 using Application.Common.Messages;
 using Application.Common.Models.ProduceModels;
+using Application.Common.Models.ZoneMembershipModel;
 using Application.Messages;
 using Application.Services.Authentication;
 using Application.Services.KafkaService.Producer;
@@ -12,6 +13,7 @@ using Domain.Models.Common;
 using FluentValidation;
 using Infrastructure.Repositories;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using static Domain.Enums.ZoneEnums;
 
@@ -19,14 +21,13 @@ namespace Application.Features.MemberFeatures.Commands
 {
     public class InviteMemberCommand : IRequest<APIResponse>
     {
-        public string? Email { get; set; }
-        public string? Type { get; set; }
+        public IEnumerable<InviteMemberRequestModel> Members { get; set; } = new List<InviteMemberRequestModel>();
         public Guid? ZoneId { get; set; }
     }
 
-    public class InviteMemberCommandValidator : AbstractValidator<InviteMemberCommand>
+    public class MembersValidator : AbstractValidator<InviteMemberRequestModel>
     {
-        public InviteMemberCommandValidator()
+        public MembersValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
@@ -37,6 +38,18 @@ namespace Application.Features.MemberFeatures.Commands
                 .NotEmpty().WithMessage("Type is required")
                 .NotNull().WithMessage("Type is required")
                 .Must(x => x!.IsInEnum<ZoneMembershipType, string>());
+        }
+    }
+
+    public class InviteMemberCommandValidator : AbstractValidator<InviteMemberCommand>
+    {
+        public InviteMemberCommandValidator()
+        {
+            
+
+            RuleFor(x => x.Members)
+                .NotEmpty().WithMessage("Members is required")
+                .ForEach(x => x.SetValidator(new MembersValidator()));
 
             RuleFor(x => x.ZoneId)
                 .NotEmpty().WithMessage("ZoneId is required")
@@ -72,52 +85,66 @@ namespace Application.Features.MemberFeatures.Commands
             }
 
             // Check if user is already a member
-            var isMember = await _unitOfWork.ZoneMembershipRepository.IsMembership(request.Email!, (Guid)request.ZoneId!);
-            if(isMember)
+            var emails = request.Members.Select(m => m.Email).ToHashSet();
+            var existingMembers = await _unitOfWork.ZoneMembershipRepository.CheckMemberInZone(emails!, (Guid)request.ZoneId!);
+            if(!existingMembers.IsNullOrEmpty())
             {
                 return new APIResponse()
                 {
                     Status = HttpStatusCode.BadRequest,
-                    Message = MessageZone.MemberExists
+                    Message = MessageZone.MemberExists,
+                    Data = existingMembers
                 };
             }
 
             // Check if user is already invited
-            var invite = await _unitOfWork.PendingZoneInviteRepository.GetBy(e =>
-                e.ZoneId.Equals(request.ZoneId) && e.Email.Equals(request.Email)
-            );
+            var existingInvites = (await _unitOfWork.PendingZoneInviteRepository.GetAll(e =>
+                e.ZoneId.Equals(request.ZoneId) && emails.Contains(e.Email)
+            )).ToDictionary(x => x.Email);
 
+            var pendingInvites = new List<PendingZoneInvite>();
+            var newInvites = new List<PendingZoneInvite>();
+            var cannotInvites = new List<InviteMemberRequestModel>();
             var userId = _authenticationService.User.UserId;
 
-            if(invite != null)
+            foreach (var member in request.Members)
             {
-                // update invite if exists
-                if (DateTime.Now < invite.ExpiredAt)
+                if(existingInvites.TryGetValue(member.Email!, out var invite))
                 {
-                    return new APIResponse()
+                    if(DateTime.Now < invite.ExpiredAt)
                     {
-                        Status = HttpStatusCode.BadRequest,
-                        Message = MessageZone.CannotInviteAfter24h
-                    };
-                }
-                invite.Type = request.Type!;
-                invite.InviteBy = userId;
-                invite.ExpiredAt = DateTime.Now.AddHours(24);
-                invite.UpdatedAt = DateTime.Now;
-                await _unitOfWork.PendingZoneInviteRepository.Update(invite);
-            } else
-            {
-                // create pending invite if not exists
-                await _unitOfWork.PendingZoneInviteRepository.Add(new PendingZoneInvite()
+                        cannotInvites.Add(member);
+                    } else
+                    {
+                        invite.UpdatedAt = DateTime.Now;
+                        invite.Type = member.Type!;
+                        invite.InviteBy = userId;
+                        invite.ExpiredAt = DateTime.Now.AddHours(24);
+                        pendingInvites.Add(invite);
+                    }
+                } else
                 {
-                    Email = request.Email!,
-                    Type = request.Type!,
-                    CreatedAt = DateTime.Now,
-                    ZoneId = request.ZoneId!,
-                    InviteBy = userId,
-                    ExpiredAt = DateTime.Now.AddHours(24)
-                });
+                    newInvites.Add(new PendingZoneInvite()
+                    {
+                        Email = member.Email!,
+                        Type = member.Type!,
+                        CreatedAt = DateTime.Now,
+                        ZoneId = request.ZoneId!,
+                        InviteBy = userId,
+                        ExpiredAt = DateTime.Now.AddHours(24)
+                    });
+                }
             }
+
+            if(cannotInvites.Any()) return new APIResponse()
+            {
+                Status = HttpStatusCode.BadRequest,
+                Message = MessageZone.CannotInviteAfter24h,
+                Data = cannotInvites
+            };
+
+            if(pendingInvites.Any()) await _unitOfWork.PendingZoneInviteRepository.UpdateRange(pendingInvites);
+            if (newInvites.Any()) await _unitOfWork.PendingZoneInviteRepository.AddRange(newInvites);
 
             if (await _unitOfWork.SaveChangesAsync())
             {
@@ -125,19 +152,19 @@ namespace Application.Features.MemberFeatures.Commands
                 var result = await _producerService.ProduceObjectWithKeyAsync(TopicKafkaConstaints.MailZoneCreated, userId.ToString(), new MailModel()
                 {
                     MailType = MailSendType.InviteMember,
-                    MailInviteMemberModel = new MailInviteMemberModel()
+                    MailInviteMemberModels = request.Members.Select(x => new MailInviteMemberModel()
                     {
                         CreatedBy = (Guid)zone.CreatedBy!,
-                        Email = request.Email!,
+                        Email = x.Email!,
                         LogoUrl = zone.LogoUrl!,
                         ZoneName = zone.Name!,
                         CreatedAt = DateTime.Now,
-                        Type = request.Type!,
+                        Type = x.Type!,
                         Description = zone.Description!,
                         BannerUrl = zone.BannerUrl!,
                         AcceptLink = $"{UrlConstant.ClientUrl}/zone/{zone.Id}/reply/accept",
                         RejectLink = $"{UrlConstant.ClientUrl}/zone/{zone.Id}/reply/reject"
-                    }
+                    })
                 });
 
                 if (result)
